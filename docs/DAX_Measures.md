@@ -166,6 +166,12 @@ AVERAGE('Campaigns'[Spend])
 
 ## Time Intelligence Measures
 
+> **Note**: Time intelligence measures require a Date table. Create a Date table using:
+> ```dax
+> Date = CALENDAR(MIN('Campaigns'[Start_Date]), MAX('Campaigns'[End_Date]))
+> ```
+> Then create a relationship between the Date table and `Campaigns[Start_Date]`.
+
 ### 15. Month-over-Month Revenue Change
 Compares revenue to the previous month.
 
@@ -185,6 +191,31 @@ RETURN
     ) * 100
 ```
 
+**Alternative without Date table** (uses campaign Start_Date):
+```dax
+MoM Revenue Change (No Date Table) = 
+VAR CurrentMonth = MONTH(MAX('Campaigns'[Start_Date]))
+VAR CurrentYear = YEAR(MAX('Campaigns'[Start_Date]))
+VAR CurrentMonthRevenue = 
+    CALCULATE(
+        SUM('Campaigns'[Revenue]),
+        MONTH('Campaigns'[Start_Date]) = CurrentMonth,
+        YEAR('Campaigns'[Start_Date]) = CurrentYear
+    )
+VAR PreviousMonthRevenue = 
+    CALCULATE(
+        SUM('Campaigns'[Revenue]),
+        MONTH('Campaigns'[Start_Date]) = IF(CurrentMonth = 1, 12, CurrentMonth - 1),
+        YEAR('Campaigns'[Start_Date]) = IF(CurrentMonth = 1, CurrentYear - 1, CurrentYear)
+    )
+RETURN
+    DIVIDE(
+        CurrentMonthRevenue - PreviousMonthRevenue,
+        PreviousMonthRevenue,
+        0
+    ) * 100
+```
+
 ### 16. Year-to-Date Revenue
 Cumulative revenue from the start of the year.
 
@@ -193,6 +224,15 @@ YTD Revenue =
 TOTALYTD(
     SUM('Campaigns'[Revenue]),
     'Date'[Date]
+)
+```
+
+**Alternative without Date table**:
+```dax
+YTD Revenue (No Date Table) = 
+CALCULATE(
+    SUM('Campaigns'[Revenue]),
+    YEAR('Campaigns'[Start_Date]) = YEAR(TODAY())
 )
 ```
 

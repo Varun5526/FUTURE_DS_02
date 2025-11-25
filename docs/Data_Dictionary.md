@@ -122,6 +122,13 @@ This document provides detailed descriptions of all columns in the `social_media
 ## Relationships for Power BI Data Model
 
 Suggested relationships when creating the Power BI model:
-- Create a Date table and link to `Start_Date` or `End_Date`
+
+### Date Table Relationship
+- Create a Date table using: `Date = CALENDAR(MIN('Campaigns'[Start_Date]), MAX('Campaigns'[End_Date]))`
+- **Recommended**: Link Date table to `Start_Date` for campaign initiation analysis and trend tracking
+- **Alternative**: Link to `End_Date` when analyzing campaign completion metrics
+- Mark the Date table as a date table in Power BI for time intelligence functions
+
+### Dimension Tables (Optional)
 - Create a Platform dimension table if needed for enhanced filtering
 - Create a Region dimension table for geographic analysis
